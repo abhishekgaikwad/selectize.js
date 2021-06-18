@@ -756,8 +756,14 @@
 			$input.attr('tabindex', -1).hide().after(self.$wrapper);
 	
 			if (Array.isArray(settings.items)) {
-				self.lastValidValue = settings.items;
-				self.setValue(settings.items);
+				if (self.isRequired && self.settings.mode == 'single' && self.settings.allowEmptyOption && settings.items[0] == '') {
+					self.lastValidValue = null;
+					self.setValue(null);
+				} else {
+					self.lastValidValue = settings.items;
+					self.setValue(settings.items);
+				}
+	
 				delete settings.items;
 			}
 	
@@ -1217,7 +1223,14 @@
 				});
 			} else {
 				value = $target.attr('data-value');
-				if (typeof value !== 'undefined') {
+				if (self.isRequired == true && self.settings.allowEmptyOption && self.settings.mode == 'single' && value == '') {
+					self.lastQuery = null;
+					self.addItem(null);
+					self.setTextboxValue('');
+					self.setValue(null);
+					self.close();
+				}	
+				else if (typeof value !== 'undefined') {
 					self.lastQuery = null;
 					self.setTextboxValue('');
 					self.addItem(value);
@@ -1696,7 +1709,7 @@
 			has_create_option = self.canCreate(query);
 			if (has_create_option) {
 				if(self.settings.showAddOptionOnCreate) {
-					$dropdown_content.prepend(self.render('option_create', {input: query}));
+					$dropdown_content.append(self.render('option_create', {input: query}));
 					$create = $($dropdown_content[0].childNodes[0]);
 				}
 			}
@@ -3064,6 +3077,43 @@
 	$.fn.selectize.support = {
 		validity: SUPPORTS_VALIDITY_API
 	};
+	
+	
+	Selectize.define("auto_position", function () {
+	  var self = this;
+	
+	  const POSITION = {
+	    top: 'top',
+	    bottom: 'bottom',
+	  };
+	
+	  self.positionDropdown = (function() {
+	    return function() {
+	      const $control = this.$control;
+	      const offset = this.settings.dropdownParent === 'body' ? $control.offset() : $control.position();
+	      offset.top += $control.outerHeight(true);
+	
+	      const dropdownHeight = this.$dropdown.prop('scrollHeight') + 5; // 5 - padding value;
+	      const controlPosTop = this.$control.get(0).getBoundingClientRect().top;
+	      const wrapperHeight = this.$wrapper.height();
+	      const position = controlPosTop + dropdownHeight + wrapperHeight  > window.innerHeight ? POSITION.top : POSITION.bottom;
+	      const styles = {
+	        width: $control.outerWidth(),
+	        left: offset.left
+	      };
+	
+	      if (position === POSITION.top) {
+	        Object.assign(styles, {bottom: offset.top, top: 'unset', margin: '0 0 5px 0'});
+	        this.$dropdown.addClass('selectize-position-top');
+	      } else {
+	        Object.assign(styles, {top: offset.top, bottom: 'unset', margin: '5px 0 0 0'});
+	        this.$dropdown.removeClass('selectize-position-top');
+	      }
+	
+	      this.$dropdown.css(styles);
+	    }
+	  }());
+	});
 	
 	
 	Selectize.define('auto_select_on_type', function(options) {

@@ -254,8 +254,14 @@ $.extend(Selectize.prototype, {
 		$input.attr('tabindex', -1).hide().after(self.$wrapper);
 
 		if (Array.isArray(settings.items)) {
-			self.lastValidValue = settings.items;
-			self.setValue(settings.items);
+			if (self.isRequired && self.settings.mode == 'single' && self.settings.allowEmptyOption && settings.items[0] == '') {
+				self.lastValidValue = null;
+				self.setValue(null);
+			} else {
+				self.lastValidValue = settings.items;
+				self.setValue(settings.items);
+			}
+
 			delete settings.items;
 		}
 
@@ -715,7 +721,14 @@ $.extend(Selectize.prototype, {
 			});
 		} else {
 			value = $target.attr('data-value');
-			if (typeof value !== 'undefined') {
+			if (self.isRequired == true && self.settings.allowEmptyOption && self.settings.mode == 'single' && value == '') {
+				self.lastQuery = null;
+				self.addItem(null);
+				self.setTextboxValue('');
+				self.setValue(null);
+				self.close();
+			}	
+			else if (typeof value !== 'undefined') {
 				self.lastQuery = null;
 				self.setTextboxValue('');
 				self.addItem(value);
@@ -1194,7 +1207,7 @@ $.extend(Selectize.prototype, {
 		has_create_option = self.canCreate(query);
 		if (has_create_option) {
 			if(self.settings.showAddOptionOnCreate) {
-				$dropdown_content.prepend(self.render('option_create', {input: query}));
+				$dropdown_content.append(self.render('option_create', {input: query}));
 				$create = $($dropdown_content[0].childNodes[0]);
 			}
 		}
