@@ -1426,7 +1426,7 @@ $.extend(Selectize.prototype, {
 	 * @param {boolean} silent
 	 */
 	clearOptions: function(silent) {
-		self.clearOptionsWithoutClear();
+		self.clearOptionsWithoutClear(silent);
 		self.clear(silent);
 	},
 
@@ -1445,7 +1445,7 @@ $.extend(Selectize.prototype, {
 		self.options = self.sifter.items = options;
 		self.lastQuery = null;
 		self.trigger('option_clear');
-	}
+	},
 
 	/**
 	 * Returns the jQuery element of the option
