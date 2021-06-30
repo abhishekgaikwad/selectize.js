@@ -1426,6 +1426,8 @@ $.extend(Selectize.prototype, {
 	 * @param {boolean} silent
 	 */
 	clearOptions: function(silent) {
+		var self = this;
+		
 		self.clearOptionsWithoutClear(silent);
 		self.clear(silent);
 	},
