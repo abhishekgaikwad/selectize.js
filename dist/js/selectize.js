@@ -1928,6 +1928,11 @@
 		 * @param {boolean} silent
 		 */
 		clearOptions: function(silent) {
+			self.clearOptionsWithoutClear();
+			self.clear(silent);
+		},
+	
+		clearOptionsWithoutClear: function(silent) {
 			var self = this;
 	
 			self.loadedSearches = {};
@@ -1942,8 +1947,7 @@
 			self.options = self.sifter.items = options;
 			self.lastQuery = null;
 			self.trigger('option_clear');
-			self.clear(silent);
-		},
+		}
 	
 		/**
 		 * Returns the jQuery element of the option
